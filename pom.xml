@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>id.co.caltic.labs.wiki</groupId>
+  <artifactId>caltic-vertx-wiki</artifactId>
+  <version>0.0.1</version>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <vertx.version>3.5.3</vertx.version>
+    <vertx-maven-plugin.version>1.0.17</vertx-maven-plugin.version>
+    <vertx.verticle>id.co.caltic.labs.wiki.MainVerticle</vertx.verticle>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.vertx</groupId>
+        <artifactId>vertx-stack-depchain</artifactId>
+        <version>${vertx.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-codegen</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-unit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.reactiverse</groupId>
+        <artifactId>vertx-maven-plugin</artifactId>
+        <version>${vertx-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>vmp</id>
+            <goals>
+              <goal>initialize</goal>
+              <goal>package</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+            <redeploy>true</redeploy>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <encoding>${project.build.sourceEncoding}</encoding>
+          <generatedSourcesDirectory>src/main/generated</generatedSourcesDirectory>
+          <generatedTestSourcesDirectory>src/test/generated</generatedTestSourcesDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>default-compile</id>
+            <configuration>
+              <annotationProcessors>
+                <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
+              </annotationProcessors>
+              <generatedSourcesDirectory>src/main/generated</generatedSourcesDirectory>
+              <compilerArgs>
+                <arg>-Acodegen.output=${project.basedir}/src/main</arg>
+              </compilerArgs>
+            </configuration>
+          </execution>
+          <execution>
+            <id>default-testCompile</id>
+            <configuration>
+              <annotationProcessors>
+                <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
+              </annotationProcessors>
+              <generatedTestSourcesDirectory>src/test/generated</generatedTestSourcesDirectory>
+              <compilerArgs>
+                <arg>-Acodegen.output=${project.basedir}/src/test</arg>
+              </compilerArgs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>com.heroku.sdk</groupId>
+        <artifactId>heroku-maven-plugin</artifactId>
+        <version>0.5.6</version>
+        <configuration>
+          <processTypes>
+            <web>java $JAVA_OPTS -jar target/${project.artifactId}-${project.version}.jar</web>
+          </processTypes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
