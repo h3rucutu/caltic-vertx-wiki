@@ -48,9 +48,8 @@ public class MainVerticle extends AbstractVerticle {
     String dbUser = System.getenv("DATABASE_USER");
     String dbPwd = System.getenv("DATABASE_PASSWORD");
     PgPool client = PgClient.pool(vertx, PgPoolOptions
-        .fromUri((connUri == null || connUri.isEmpty()) ? "postgresql://localhost:5432/caltic_wiki" : connUri)
-        .setUser(dbUser)
-        .setPassword(dbPwd)
+        .fromUri((connUri == null || connUri.isEmpty()) ?
+            String.format("postgresql://%s:%s@localhost:5432/caltic_wiki", dbUser, dbPwd) : connUri)
         .setMaxSize(10));
 
     client.getConnection(ar -> {
