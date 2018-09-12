@@ -1,9 +1,6 @@
 package id.co.caltic.labs.wiki;
 
-import io.reactiverse.pgclient.PgClient;
-import io.reactiverse.pgclient.PgConnection;
-import io.reactiverse.pgclient.PgPool;
-import io.reactiverse.pgclient.PgPoolOptions;
+import io.reactiverse.pgclient.*;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
@@ -13,6 +10,10 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.templ.FreeMarkerTemplateEngine;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class MainVerticle extends AbstractVerticle {
   private static final Logger LOGGER = LoggerFactory.getLogger(MainVerticle.class);
@@ -27,6 +28,7 @@ public class MainVerticle extends AbstractVerticle {
   private static final String SQL_ALL_PAGES = "SELECT name FROM pages";
   private static final String SQL_DELETE_PAGE = "DELETE FROM pages WHERE id = ?";
 
+  private PgPool client;
   private final FreeMarkerTemplateEngine templateEngine = FreeMarkerTemplateEngine.create();
 
   @Override
@@ -47,7 +49,7 @@ public class MainVerticle extends AbstractVerticle {
     String connUri = System.getenv("JDBC_DATABASE_URL");
     String dbUser = System.getenv("DATABASE_USER");
     String dbPwd = System.getenv("DATABASE_PASSWORD");
-    PgPool client = PgClient.pool(vertx, PgPoolOptions
+    client = PgClient.pool(vertx, PgPoolOptions
         .fromUri((connUri == null || connUri.isEmpty()) ?
             String.format("postgresql://%s:%s@localhost:5432/caltic_wiki", dbUser, dbPwd) : connUri)
         .setMaxSize(10));
@@ -100,7 +102,37 @@ public class MainVerticle extends AbstractVerticle {
   }
 
   private void indexHandler(RoutingContext context) {
-    // TODO: Add implementation logic here!
+    client.getConnection(car -> {
+      if (car.succeeded()) {
+        PgConnection conn = car.result();
+        conn.query(SQL_ALL_PAGES, res -> {
+          conn.close();
+          if (res.succeeded()) {
+            List<String> pages = new ArrayList<String>();
+            res.result().forEach(new Consumer<Row>() {
+              @Override
+              public void accept(Row row) {
+                pages.add(row.getString("name"));
+              }
+            });
+            context.put("title", "Wiki Home");
+            context.put("pages", pages);
+            templateEngine.render(context, "templates", "/index.ftl", ar -> {
+              if (ar.succeeded()) {
+                context.response().putHeader("Content-Type", "text/html");
+                context.response().end(ar.result());
+              } else {
+                context.fail(ar.cause());
+              }
+            });
+          } else {
+            context.fail(res.cause());
+          }
+        });
+      } else {
+        context.fail(car.cause());
+      }
+    });
   }
 
   private void pageRenderingHandler(RoutingContext context) {
