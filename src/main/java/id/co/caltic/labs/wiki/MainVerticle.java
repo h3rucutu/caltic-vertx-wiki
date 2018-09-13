@@ -27,10 +27,10 @@ public class MainVerticle extends AbstractVerticle {
       "name VARCHAR(255) UNIQUE NOT NULL, " +
       "content TEXT)";
   private static final String SQL_GET_PAGE = "SELECT id, content FROM pages WHERE name = $1";
-  private static final String SQL_CREATE_PAGE = "INSERT INTO pages (name, content) VALUES (?, ?)";
-  private static final String SQL_SAVE_PAGE = "UPDATE pages SET content = ? WHERE id = ?";
+  private static final String SQL_CREATE_PAGE = "INSERT INTO pages (name, content) VALUES ($1, $2)";
+  private static final String SQL_SAVE_PAGE = "UPDATE pages SET content = $1 WHERE id = $2";
   private static final String SQL_ALL_PAGES = "SELECT name FROM pages";
-  private static final String SQL_DELETE_PAGE = "DELETE FROM pages WHERE id = ?";
+  private static final String SQL_DELETE_PAGE = "DELETE FROM pages WHERE id = $1";
 
   private PgPool client;
   private final FreeMarkerTemplateEngine templateEngine = FreeMarkerTemplateEngine.create();
@@ -106,6 +106,7 @@ public class MainVerticle extends AbstractVerticle {
   }
 
   private void indexHandler(RoutingContext context) {
+    LOGGER.info("indexHandler");
     client.getConnection(car -> {
       if (car.succeeded()) {
         PgConnection conn = car.result();
@@ -140,7 +141,9 @@ public class MainVerticle extends AbstractVerticle {
   }
 
   private void pageRenderingHandler(RoutingContext context) {
+    LOGGER.info("pageRenderingHandler");
     String page = context.request().getParam("page");
+    LOGGER.info(String.format("page: %s", page));
     client.getConnection(car -> {
       if (car.succeeded()) {
         PgConnection conn = car.result();
@@ -148,16 +151,17 @@ public class MainVerticle extends AbstractVerticle {
           conn.close();
           if (fetch.succeeded()) {
             JsonArray jsonRow = new JsonArray();
-            fetch.result().forEach(new Consumer<Row>() {
-              @Override
-              public void accept(Row row) {
-                if (row != null) {
+            LOGGER.info(String.format("row size: %s", fetch.result().size()));
+            if (fetch.result().size() > 0) {
+              fetch.result().forEach(new Consumer<Row>() {
+                @Override
+                public void accept(Row row) {
                   jsonRow.add(row.getInteger("id")).add(row.getString("content"));
-                } else {
-                  jsonRow.add(-1).add(EMPTY_PAGE_MARKDOWN);
                 }
-              }
-            });
+              });
+            } else {
+              jsonRow.add(-1).add(EMPTY_PAGE_MARKDOWN);
+            }
             context.put("title", page);
             context.put("id", jsonRow.getInteger(0));
             context.put("newPage", jsonRow.getInteger(0) == -1 ? "yes" : "no");
@@ -183,6 +187,7 @@ public class MainVerticle extends AbstractVerticle {
   }
 
   private void pageUpdateHandler(RoutingContext context) {
+    LOGGER.info("pageUpdateHandler");
     String id = context.request().getParam("id");
     String title = context.request().getParam("title");
     String markdown = context.request().getParam("markdown");
@@ -196,7 +201,7 @@ public class MainVerticle extends AbstractVerticle {
         if (newPage) {
           tuples.add(Tuple.of(title, markdown));
         } else {
-          tuples.add(Tuple.of(markdown, id));
+          tuples.add(Tuple.of(markdown, Integer.valueOf(id)));
         }
         conn.preparedQuery(sql, tuples.get(0), res -> {
           conn.close();
@@ -215,22 +220,27 @@ public class MainVerticle extends AbstractVerticle {
   }
 
   private void pageCreateHandler(RoutingContext context) {
+    LOGGER.info("pageCreateHandler");
     String pageName = context.request().getParam("name");
     String location = "/wiki/" + pageName;
     if (pageName == null || pageName.isEmpty()) {
       location = "/";
     }
+    LOGGER.info(String.format("page: %s", pageName));
+    LOGGER.info(String.format("location: %s", location));
     context.response().setStatusCode(303);
     context.response().putHeader("Location", location);
     context.response().end();
   }
 
   private void pageDeletionHandler(RoutingContext context) {
+    LOGGER.info("pageDeletionHandler");
     String id = context.request().getParam("id");
+    LOGGER.info(String.format("id: %s", id));
     client.getConnection(car -> {
       if (car.succeeded()) {
         PgConnection conn = car.result();
-        conn.preparedQuery(SQL_DELETE_PAGE, Tuple.of(id), res -> {
+        conn.preparedQuery(SQL_DELETE_PAGE, Tuple.of(Integer.valueOf(id)), res -> {
           conn.close();
           if (res.succeeded()) {
             context.response().setStatusCode(303);
