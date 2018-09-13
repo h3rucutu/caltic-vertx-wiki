@@ -183,15 +183,67 @@ public class MainVerticle extends AbstractVerticle {
   }
 
   private void pageUpdateHandler(RoutingContext context) {
-    // TODO: Add implementation logic here!
+    String id = context.request().getParam("id");
+    String title = context.request().getParam("title");
+    String markdown = context.request().getParam("markdown");
+    boolean newPage = "yes".equals(context.request().getParam("newPage"));
+
+    client.getConnection(car -> {
+      if (car.succeeded()) {
+        PgConnection conn = car.result();
+        String sql = newPage ? SQL_CREATE_PAGE : SQL_SAVE_PAGE;
+        List<Tuple> tuples = new ArrayList<>();
+        if (newPage) {
+          tuples.add(Tuple.of(title, markdown));
+        } else {
+          tuples.add(Tuple.of(markdown, id));
+        }
+        conn.preparedQuery(sql, tuples.get(0), res -> {
+          conn.close();
+          if (res.succeeded()) {
+            context.response().setStatusCode(303);
+            context.response().putHeader("Location", "/wiki/" + title);
+            context.response().end();
+          } else {
+            context.fail(res.cause());
+          }
+        });
+      } else {
+        context.fail(car.cause());
+      }
+    });
   }
 
   private void pageCreateHandler(RoutingContext context) {
-    // TODO: Add implementation logic here!
+    String pageName = context.request().getParam("name");
+    String location = "/wiki/" + pageName;
+    if (pageName == null || pageName.isEmpty()) {
+      location = "/";
+    }
+    context.response().setStatusCode(303);
+    context.response().putHeader("Location", location);
+    context.response().end();
   }
 
   private void pageDeletionHandler(RoutingContext context) {
-    // TODO: Add implementation logic here!
+    String id = context.request().getParam("id");
+    client.getConnection(car -> {
+      if (car.succeeded()) {
+        PgConnection conn = car.result();
+        conn.preparedQuery(SQL_DELETE_PAGE, Tuple.of(id), res -> {
+          conn.close();
+          if (res.succeeded()) {
+            context.response().setStatusCode(303);
+            context.response().putHeader("Location", "/");
+            context.response().end();
+          } else {
+            context.fail(res.cause());
+          }
+        });
+      } else {
+        context.fail(car.cause());
+      }
+    });
   }
 
 }
