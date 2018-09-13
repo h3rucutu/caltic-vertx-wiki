@@ -6,7 +6,7 @@
 
   <groupId>id.co.caltic.labs.wiki</groupId>
   <artifactId>caltic-vertx-wiki</artifactId>
-  <version>0.0.2</version>
+  <version>0.1.0</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -15,6 +15,10 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <vertx.version>3.5.3</vertx.version>
     <vertx-maven-plugin.version>1.0.17</vertx-maven-plugin.version>
+    <reactive.pg.client.version>0.10.2</reactive.pg.client.version>
+    <txtmark.version>0.13</txtmark.version>
+    <logback.version>1.2.3</logback.version>
+    <junit.version>4.12</junit.version>
     <vertx.verticle>id.co.caltic.labs.wiki.MainVerticle</vertx.verticle>
   </properties>
 
@@ -37,8 +41,31 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
+      <artifactId>vertx-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-web-templ-freemarker</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.rjeschke</groupId>
+      <artifactId>txtmark</artifactId>
+      <version>${txtmark.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.reactiverse</groupId>
+      <artifactId>reactive-pg-client</artifactId>
+      <version>${reactive.pg.client.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
       <artifactId>vertx-codegen</artifactId>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -48,7 +75,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
