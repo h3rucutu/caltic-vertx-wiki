@@ -50,10 +50,9 @@ public class MainVerticle extends AbstractVerticle {
   private Future<Void> prepareDatabase() {
     Future<Void> future = Future.future();
 
-    String connUri = System.getenv("JDBC_DATABASE_URL");
+    String connUri = System.getenv("DATABASE_URL");
     String dbUser = System.getenv("DATABASE_USER");
     String dbPwd = System.getenv("DATABASE_PASSWORD");
-    LOGGER.info(String.format("JDBC_DATABASE_URL: %s", connUri));
     client = PgClient.pool(vertx, PgPoolOptions
         .fromUri((connUri == null || connUri.isEmpty()) ?
             String.format("postgresql://%s:%s@localhost:5432/caltic_wiki", dbUser, dbPwd) : connUri)
