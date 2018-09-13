@@ -38,3 +38,5 @@
     <p class="small">Rendered: ${context.timestamp}</p>
   </div>
 </div>
+
+<#include "footer.ftl">
