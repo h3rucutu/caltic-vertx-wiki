@@ -1,9 +1,11 @@
 package id.co.caltic.labs.wiki;
 
+import com.github.rjeschke.txtmark.Processor;
 import io.reactiverse.pgclient.*;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
@@ -12,17 +14,19 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.templ.FreeMarkerTemplateEngine;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class MainVerticle extends AbstractVerticle {
   private static final Logger LOGGER = LoggerFactory.getLogger(MainVerticle.class);
 
+  private static final String EMPTY_PAGE_MARKDOWN = "# A new page\n\nFeel-free to write in Markdown!\n";
   private static final String SQL_CREATE_PAGES_TABLE = "CREATE TABLE IF NOT EXISTS pages (" +
       "id serial PRIMARY KEY, " +
       "name VARCHAR(255) UNIQUE NOT NULL, " +
       "content TEXT)";
-  private static final String SQL_GET_PAGE = "SELECT id, content FROM pages WHERE name = ?";
+  private static final String SQL_GET_PAGE = "SELECT id, content FROM pages WHERE name = $1";
   private static final String SQL_CREATE_PAGE = "INSERT INTO pages (name, content) VALUES (?, ?)";
   private static final String SQL_SAVE_PAGE = "UPDATE pages SET content = ? WHERE id = ?";
   private static final String SQL_ALL_PAGES = "SELECT name FROM pages";
@@ -108,7 +112,7 @@ public class MainVerticle extends AbstractVerticle {
         conn.query(SQL_ALL_PAGES, res -> {
           conn.close();
           if (res.succeeded()) {
-            List<String> pages = new ArrayList<String>();
+            List<String> pages = new ArrayList<>();
             res.result().forEach(new Consumer<Row>() {
               @Override
               public void accept(Row row) {
@@ -136,7 +140,46 @@ public class MainVerticle extends AbstractVerticle {
   }
 
   private void pageRenderingHandler(RoutingContext context) {
-    // TODO: Add implementation logic here!
+    String page = context.request().getParam("page");
+    client.getConnection(car -> {
+      if (car.succeeded()) {
+        PgConnection conn = car.result();
+        conn.preparedQuery(SQL_GET_PAGE, Tuple.of(page), fetch -> {
+          conn.close();
+          if (fetch.succeeded()) {
+            JsonArray jsonRow = new JsonArray();
+            fetch.result().forEach(new Consumer<Row>() {
+              @Override
+              public void accept(Row row) {
+                if (row != null) {
+                  jsonRow.add(row.getInteger("id")).add(row.getString("content"));
+                } else {
+                  jsonRow.add(-1).add(EMPTY_PAGE_MARKDOWN);
+                }
+              }
+            });
+            context.put("title", page);
+            context.put("id", jsonRow.getInteger(0));
+            context.put("newPage", jsonRow.getInteger(0) == -1 ? "yes" : "no");
+            context.put("rawContent", jsonRow.getString(1));
+            context.put("content", Processor.process(jsonRow.getString(1)));
+            context.put("timestamp", new Date().toString());
+            templateEngine.render(context, "templates", "/page.ftl", ar -> {
+              if (ar.succeeded()) {
+                context.response().putHeader("Content-Type", "text/html");
+                context.response().end(ar.result());
+              } else {
+                context.fail(ar.cause());
+              }
+            });
+          } else {
+            context.fail(fetch.cause());
+          }
+        });
+      } else {
+        context.fail(car.cause());
+      }
+    });
   }
 
   private void pageUpdateHandler(RoutingContext context) {
