@@ -88,7 +88,8 @@ public class HttpServerVerticle extends AbstractVerticle {
 
         context.put("title", page);
         context.put("id", body.getInteger("id", -1));
-        context.put("newPage", found ? "yes" : "no");
+        context.put("newPage", !found ? "yes" : "no");
+        LOGGER.info(String.format("newPage: %s", found));
         context.put("rawContent", rawContent);
         context.put("content", Processor.process(rawContent));
         context.put("timestamp", new Date().toString());
@@ -109,6 +110,7 @@ public class HttpServerVerticle extends AbstractVerticle {
   private void pageUpdateHandler(RoutingContext context) {
     LOGGER.info("pageUpdateHandler");
     String title = context.request().getParam("title");
+    LOGGER.info(String.format("newPage: %s", context.request().getParam("newPage")));
     JsonObject request = new JsonObject()
         .put("id", context.request().getParam("id"))
         .put("title", title)
@@ -158,4 +160,5 @@ public class HttpServerVerticle extends AbstractVerticle {
       }
     });
   }
+
 }

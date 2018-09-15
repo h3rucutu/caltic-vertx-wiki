@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class DatabaseVerticle extends AbstractVerticle {
-  private static final Logger LOGGER = LoggerFactory.getLogger(HttpServerVerticle.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseVerticle.class);
 
   private static final String WIKIDB_QUEUE = "wikidb.queue";
   private static final String SQL_CREATE_PAGES_TABLE = "CREATE TABLE IF NOT EXISTS pages (" +
@@ -167,7 +167,7 @@ public class DatabaseVerticle extends AbstractVerticle {
   private void savePage(Message<JsonObject> message) {
     LOGGER.info("savePage");
     Tuple params = Tuple.of(message.body().getString("markdown"),
-        message.body().getString("title"));
+        Integer.valueOf(message.body().getString("id")));
 
     paramsHandler(message, SQL_SAVE_PAGE, params);
   }
