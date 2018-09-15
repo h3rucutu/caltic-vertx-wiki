@@ -32,6 +32,8 @@ public class MainVerticle extends AbstractVerticle {
   private static final String SQL_ALL_PAGES = "SELECT name FROM pages";
   private static final String SQL_DELETE_PAGE = "DELETE FROM pages WHERE id = $1";
 
+  public static final String CONFIG_WIKIDB_QUEUE = "wikidb.queue";
+
   private PgPool client;
   private final FreeMarkerTemplateEngine templateEngine = FreeMarkerTemplateEngine.create();
 
@@ -45,6 +47,29 @@ public class MainVerticle extends AbstractVerticle {
         startFuture.fail(ar.cause());
       }
     });
+
+    // TODO: refactor start method
+    String port = System.getenv("PORT");
+    HttpServer server = vertx.createHttpServer();
+
+    Router router = Router.router(vertx);
+    router.get("/").handler(this::indexHandler);
+    router.get("/wiki/:page").handler(this::pageRenderingHandler);
+    router.post().handler(BodyHandler.create());
+    router.post("/save").handler(this::pageUpdateHandler);
+    router.post("/create").handler(this::pageCreateHandler);
+    router.post("/delete").handler(this::pageDeletionHandler);
+
+    int portNumber = (port == null || port.isEmpty() ? 9000 : Integer.valueOf(port));
+    server.requestHandler(router::accept)
+        .listen(portNumber, ar -> {
+          if (ar.succeeded()) {
+            LOGGER.info("HTTP server running on port " + portNumber);
+            startFuture.complete();
+          } else {
+            startFuture.fail(ar.cause());
+          }
+        });
   }
 
   private Future<Void> prepareDatabase() {
