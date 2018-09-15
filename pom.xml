@@ -6,7 +6,7 @@
 
   <groupId>id.co.caltic.labs.wiki</groupId>
   <artifactId>caltic-vertx-wiki</artifactId>
-  <version>0.1.2-SNAPSHOT</version>
+  <version>0.2.0-SNAPSHOT</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -136,17 +136,6 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>com.heroku.sdk</groupId>
-        <artifactId>heroku-maven-plugin</artifactId>
-        <version>0.5.6</version>
-        <configuration>
-          <processTypes>
-            <web>java $JAVA_OPTS -jar target/${project.artifactId}-${project.version}.jar</web>
-          </processTypes>
-        </configuration>
       </plugin>
     </plugins>
   </build>
