@@ -4,10 +4,8 @@ import com.github.rjeschke.txtmark.Processor;
 import io.reactiverse.pgclient.*;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
@@ -34,8 +32,6 @@ public class MainVerticle extends AbstractVerticle {
   private static final String SQL_ALL_PAGES = "SELECT name FROM pages";
   private static final String SQL_DELETE_PAGE = "DELETE FROM pages WHERE id = $1";
 
-  public static final String WIKIDB_QUEUE = "wikidb.queue";
-
   private PgPool client;
   private final FreeMarkerTemplateEngine templateEngine = FreeMarkerTemplateEngine.create();
 
@@ -49,30 +45,6 @@ public class MainVerticle extends AbstractVerticle {
         startFuture.fail(ar.cause());
       }
     });
-
-    // TODO: refactor start method
-    String port = System.getenv("PORT");
-    HttpServer server = vertx.createHttpServer();
-
-    Router router = Router.router(vertx);
-    router.get("/").handler(this::indexHandler);
-    router.get("/wiki/:page").handler(this::pageRenderingHandler);
-    router.post().handler(BodyHandler.create());
-    router.post("/save").handler(this::pageUpdateHandler);
-    router.post("/create").handler(this::pageCreateHandler);
-    router.post("/delete").handler(this::pageDeletionHandler);
-
-    int portNumber = (port == null || port.isEmpty() ? 9000 : Integer.valueOf(port));
-    server.requestHandler(router::accept)
-        .listen(portNumber, ar -> {
-          if (ar.succeeded()) {
-            LOGGER.info("HTTP server running on port " + portNumber);
-            startFuture.complete();
-          } else {
-            LOGGER.error("Could not start a HTTP server", ar.cause());
-            startFuture.fail(ar.cause());
-          }
-        });
   }
 
   private Future<Void> prepareDatabase() {
@@ -136,30 +108,7 @@ public class MainVerticle extends AbstractVerticle {
 
   private void indexHandler(RoutingContext context) {
     LOGGER.info("indexHandler");
-
-    // TODO: refactor indexHandler
-    DeliveryOptions options = new DeliveryOptions().addHeader("action", "all-pages");
-
-    vertx.eventBus().send(WIKIDB_QUEUE, new JsonObject(), options, reply -> {
-      if (reply.succeeded()) {
-        JsonObject body = (JsonObject) reply.result().body();
-
-        context.put("title", "Wiki Home");
-        context.put("pages", body.getJsonArray("pages").getList());
-        templateEngine.render(context, "templates", "/index.ftl", ar -> {
-          if (ar.succeeded()) {
-            context.response().putHeader("Content-Type", "text/html");
-            context.response().end(ar.result());
-          } else {
-            context.fail(ar.cause());
-          }
-        });
-      } else {
-        context.fail(reply.cause());
-      }
-    });
-
-    /*client.getConnection(car -> {
+    client.getConnection(car -> {
       if (car.succeeded()) {
         PgConnection conn = car.result();
         conn.query(SQL_ALL_PAGES, res -> {
@@ -189,44 +138,14 @@ public class MainVerticle extends AbstractVerticle {
       } else {
         context.fail(car.cause());
       }
-    });*/
+    });
   }
 
   private void pageRenderingHandler(RoutingContext context) {
     LOGGER.info("pageRenderingHandler");
-
-    // TODO: refactor pageRenderingHandler
     String page = context.request().getParam("page");
     LOGGER.info(String.format("page: %s", page));
-    JsonObject request = new JsonObject().put("page", page);
-    DeliveryOptions options = new DeliveryOptions().addHeader("action", "get-page");
-
-    vertx.eventBus().send(WIKIDB_QUEUE, request, options, reply -> {
-      if (reply.succeeded()) {
-        JsonObject body = (JsonObject) reply.result().body();
-        boolean found = body.getBoolean("found");
-        String rawContent = body.getString("rawContent", EMPTY_PAGE_MARKDOWN);
-
-        context.put("title", page);
-        context.put("id", body.getInteger("id", -1));
-        context.put("newPage", found ? "yes" : "no");
-        context.put("rawContent", rawContent);
-        context.put("content", Processor.process(rawContent));
-        context.put("timestamp", new Date().toString());
-        templateEngine.render(context, "templates", "/page.ftl", ar -> {
-          if (ar.succeeded()) {
-            context.response().putHeader("Content-Type", "text/html");
-            context.response().end(ar.result());
-          } else {
-            context.fail(ar.cause());
-          }
-        });
-      } else {
-        context.fail(reply.cause());
-      }
-    });
-
-    /*client.getConnection(car -> {
+    client.getConnection(car -> {
       if (car.succeeded()) {
         PgConnection conn = car.result();
         conn.preparedQuery(SQL_GET_PAGE, Tuple.of(page), fetch -> {
@@ -265,36 +184,17 @@ public class MainVerticle extends AbstractVerticle {
       } else {
         context.fail(car.cause());
       }
-    });*/
+    });
   }
 
   private void pageUpdateHandler(RoutingContext context) {
     LOGGER.info("pageUpdateHandler");
-
-    // TODO: refactor pageUpdateHandler
-    String title = context.request().getParam("title");
-    JsonObject request = new JsonObject()
-        .put("id", context.request().getParam("id"))
-        .put("title", title)
-        .put("markdown", context.request().getParam("markdown"));
-
-    DeliveryOptions options = new DeliveryOptions()
-        .addHeader("action", "yes".equals(context.request().getParam("newPage")) ? "create-page" : "save-page");
-    vertx.eventBus().send(WIKIDB_QUEUE, request, options, reply -> {
-      if (reply.succeeded()) {
-        context.response().setStatusCode(303);
-        context.response().putHeader("Location", "/wiki/" + title);
-        context.response().end();
-      } else {
-        context.fail(reply.cause());
-      }
-    });
-
     String id = context.request().getParam("id");
+    String title = context.request().getParam("title");
     String markdown = context.request().getParam("markdown");
     boolean newPage = "yes".equals(context.request().getParam("newPage"));
 
-    /*client.getConnection(car -> {
+    client.getConnection(car -> {
       if (car.succeeded()) {
         PgConnection conn = car.result();
         String sql = newPage ? SQL_CREATE_PAGE : SQL_SAVE_PAGE;
@@ -317,7 +217,7 @@ public class MainVerticle extends AbstractVerticle {
       } else {
         context.fail(car.cause());
       }
-    });*/
+    });
   }
 
   private void pageCreateHandler(RoutingContext context) {
@@ -336,24 +236,9 @@ public class MainVerticle extends AbstractVerticle {
 
   private void pageDeletionHandler(RoutingContext context) {
     LOGGER.info("pageDeletionHandler");
-
-    // TODO: refactor pageDeletionHandler
     String id = context.request().getParam("id");
     LOGGER.info(String.format("id: %s", id));
-    JsonObject request = new JsonObject().put("id", id);
-    DeliveryOptions options = new DeliveryOptions().addHeader("action", "delete-page");
-
-    vertx.eventBus().send(WIKIDB_QUEUE, request, options, reply -> {
-      if (reply.succeeded()) {
-        context.response().setStatusCode(303);
-        context.response().putHeader("Location", "/");
-        context.response().end();
-      } else {
-        context.fail(reply.cause());
-      }
-    });
-
-    /*client.getConnection(car -> {
+    client.getConnection(car -> {
       if (car.succeeded()) {
         PgConnection conn = car.result();
         conn.preparedQuery(SQL_DELETE_PAGE, Tuple.of(Integer.valueOf(id)), res -> {
@@ -369,7 +254,7 @@ public class MainVerticle extends AbstractVerticle {
       } else {
         context.fail(car.cause());
       }
-    });*/
+    });
   }
 
 }
