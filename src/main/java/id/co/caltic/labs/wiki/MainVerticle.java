@@ -20,11 +20,15 @@ public class MainVerticle extends AbstractVerticle {
     DeploymentOptions httpOptions = new DeploymentOptions()
         .setInstances((httpInstance == null || httpInstance.isEmpty()) ? 1 : Integer.valueOf(httpInstance));
 
-    vertx.deployVerticle(new DatabaseVerticle(), dbOptions, dbVerticleDeployment.completer());
+    vertx.deployVerticle(
+        "id.co.caltic.labs.wiki.DatabaseVerticle",
+        dbOptions, dbVerticleDeployment.completer());
 
     dbVerticleDeployment.compose(id -> {
       Future<String> httpVerticleDeployment = Future.future();
-      vertx.deployVerticle(new HttpServerVerticle(), httpOptions, httpVerticleDeployment.completer());
+      vertx.deployVerticle(
+          "id.co.caltic.labs.wiki.HttpServerVerticle",
+          httpOptions, httpVerticleDeployment.completer());
 
       return httpVerticleDeployment;
     }).setHandler(ar -> {
