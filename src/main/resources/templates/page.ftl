@@ -9,17 +9,17 @@
     </span>
     <h1 class="display-4">
       <span class="text-muted">{</span>
-      ${context.title}
+    ${context.title}
       <span class="text-muted">}</span>
     </h1>
   </div>
 
   <div class="col-md-12 mt-1 clearfix">
-    ${context.content}
+  ${context.content}
   </div>
 
   <div class="col-md-12 collapsable collapse clearfix" id="editor">
-    <form action="/save" method="post">
+    <form action="/action/save" method="post">
       <div class="form-group">
         <input type="hidden" name="id" value="${context.id}">
         <input type="hidden" name="title" value="${context.title}">
@@ -28,7 +28,9 @@
       </div>
       <button type="submit" class="btn btn-primary">Save</button>
       <#if context.id != -1>
-          <button type="submit" formaction="/delete" class="btn btn-danger float-xs-right">Delete</button>
+        <#if context.canDelete>
+          <button type="submit" formaction="/action/delete" class="btn btn-danger float-xs-right">Delete</button>
+        </#if>
       </#if>
     </form>
   </div>

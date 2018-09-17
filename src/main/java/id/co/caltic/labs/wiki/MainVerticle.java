@@ -3,8 +3,8 @@ package id.co.caltic.labs.wiki;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MainVerticle extends AbstractVerticle {
   private static final Logger LOGGER = LoggerFactory.getLogger(MainVerticle.class);

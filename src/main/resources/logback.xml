@@ -5,6 +5,7 @@
     </encoder>
   </appender>
 
+  <logger name="com.mchange.v2" level="warn"/>
   <logger name="io.reactiverse" level="warn"/>
   <logger name="io.netty" level="warn"/>
   <logger name="io.vertx" level="info"/>
