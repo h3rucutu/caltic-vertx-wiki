@@ -30,7 +30,7 @@ Set Environment Variable `DATABASE_USER` and `DATABASE_PASSWORD`:
 
 [source]
 ----
-export DATABASE_USER=caltic_wiki
+export DATABASE_USER=caltic_lab
 export DATABASE_PASSWORD=caltic_password
 ----
 
