@@ -33,7 +33,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
-    String connUri = System.getenv("DATABASE_URL");
+    String connUri = System.getenv("JDBC_DATABASE_URL");
     String dbUser = System.getenv("DATABASE_USER");
     String dbPwd = System.getenv("DATABASE_PASSWORD");
     String dbPoolAuth = System.getenv("DATABASE_POOL_AUTH");
