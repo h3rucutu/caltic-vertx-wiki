@@ -28,7 +28,9 @@
       </div>
       <button type="submit" class="btn btn-primary">Save</button>
       <#if context.id != -1>
+        <#if context.canDelete>
           <button type="submit" formaction="/action/delete" class="btn btn-danger float-xs-right">Delete</button>
+        </#if>
       </#if>
     </form>
   </div>

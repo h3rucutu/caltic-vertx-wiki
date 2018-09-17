@@ -174,29 +174,35 @@ public class HttpServerVerticle extends AbstractVerticle {
     JsonObject request = new JsonObject().put("page", page);
     DeliveryOptions options = new DeliveryOptions().addHeader("action", "get-page");
 
-    vertx.eventBus().send(WIKIDB_QUEUE, request, options, reply -> {
-      if (reply.succeeded()) {
-        JsonObject body = (JsonObject) reply.result().body();
-        boolean found = body.getBoolean("found");
-        String rawContent = body.getString("rawContent", EMPTY_PAGE_MARKDOWN);
+    context.user().isAuthorized("delete", res -> {
+      if (res.succeeded()) {
+        vertx.eventBus().send(WIKIDB_QUEUE, request, options, reply -> {
+          if (reply.succeeded()) {
+            JsonObject body = (JsonObject) reply.result().body();
+            boolean found = body.getBoolean("found");
+            String rawContent = body.getString("rawContent", EMPTY_PAGE_MARKDOWN);
 
-        context.put("title", page);
-        context.put("id", body.getInteger("id", -1));
-        context.put("newPage", !found ? "yes" : "no");
-        LOGGER.info(String.format("newPage: %s", found));
-        context.put("rawContent", rawContent);
-        context.put("content", Processor.process(rawContent));
-        context.put("timestamp", new Date().toString());
-        templateEngine.render(context, "templates", "/page.ftl", ar -> {
-          if (ar.succeeded()) {
-            context.response().putHeader("Content-Type", "text/html");
-            context.response().end(ar.result());
+            context.put("title", page);
+            context.put("id", body.getInteger("id", -1));
+            context.put("newPage", !found ? "yes" : "no");
+            LOGGER.info(String.format("newPage: %s", !found));
+            context.put("canDelete", res.result());
+            LOGGER.info(String.format("canDelete: %s", res.result()));
+            context.put("rawContent", rawContent);
+            context.put("content", Processor.process(rawContent));
+            context.put("timestamp", new Date().toString());
+            templateEngine.render(context, "templates", "/page.ftl", ar -> {
+              if (ar.succeeded()) {
+                context.response().putHeader("Content-Type", "text/html");
+                context.response().end(ar.result());
+              } else {
+                context.fail(ar.cause());
+              }
+            });
           } else {
-            context.fail(ar.cause());
+            context.fail(reply.cause());
           }
         });
-      } else {
-        context.fail(reply.cause());
       }
     });
   }
