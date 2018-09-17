@@ -1,0 +1,11 @@
+version: "2"
+services:
+  postgres:
+    container_name: db_caltic_wiki
+    image: postgres:10-alpine
+    ports:
+    - "5432:5432"
+    environment:
+    - POSTGRES_USER=caltic_lab
+    - POSTGRES_PASSWORD=caltic_password
+    - POSTGRES_DB=caltic_wiki

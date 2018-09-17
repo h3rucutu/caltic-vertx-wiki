@@ -1,63 +1,122 @@
-= Vert.x Maven Starter
+= Caltic Vert.x Wiki
 
-This project is a template to start your own Vert.x project using Apache Maven.
+A wiki project based on Vert.x.
+
+== Changelogs
+
+Changelogs:
+
+* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.2.0[0.2.0]: Refactor using event bus communication
+* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.1.1[0.1.1]: Hotfix DB Pool
+* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.1.0[0.1.0]: Wiki Functionality
+* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.0.1[0.0.1]: Hello World
 
 == Prerequisites
 
-* Apache Maven
 * JDK 8+
+* Git
+* Docker
 
 == Getting started
 
-Create your project with:
+Clone this project:
 
 [source]
 ----
-git clone https://github.com/vert-x3/vertx-maven-starter.git PROJECT_NAME
+git clone https://github.com/h3rucutu/caltic-vertx-wiki.git
 ----
 
-Replace `PROJECT_NAME` with the name of your project.
-
-On Linux and MacOSx (or Windows with `bash`), if you want to go faster and generate an already configured project run:
+Set Environment Variable `DATABASE_USER` and `DATABASE_PASSWORD`:
 
 [source]
 ----
-curl http://vertx.io/assets/starter-scripts/create-vertx-project-maven.sh -o vertx-create-maven-project.sh; bash vertx-create-maven-project.sh
+export DATABASE_USER=caltic_lab
+export DATABASE_PASSWORD=caltic_password
+----
+
+Start PostgreSQL Database using Docker:
+
+[source]
+----
+docker-compose up -d
+----
+
+Enter to bash container and create schema and seed the dummy user of vertx-auth-jdbc:
+
+[source]
+----
+$ docker exec -it db_caltic_wiki sh
+# psql -U caltic_lab caltic_wiki
+caltic_wiki=# QUERY_INSIDE_RESOURCE
+caltic_wiki=# \q
+# exit
+----
+
+Replace `QUERY_INSIDE_RESOURCE` with query in https://github.com/h3rucutu/caltic-vertx-wiki/blob/master/src/main/resources/sql/vertx_auth_jdbc.sql[vertx_auth_jdbc.sql].
+
+`User Matrix`
+
+[source]
+----
+username | password | role   | permission
+-----------------------------------------------------
+admin    | admin    | admin  | create, update, delete
+editor   | editor   | editor | create, update, delete
+writer   | writer   | writer | update
 ----
 
 == Running the project
 
-Once you have retrieved the project, you can check that everything works with:
+Once you have completed every steps above, you can running with:
 
 [source]
 ----
-mvn test exec:java
+./mvnw clean compile vertx:run
 ----
 
-The command compiles the project and runs the tests, then  it launches the application, so you can check by yourself. Open your browser to http://localhost:8080. You should see a _Hello World_ message.
+On Windows:
 
-== Anatomy of the project
-
-The project contains:
-
-* a `pom.xml` file
-* a _main_ verticle file (src/main/java/io/vertx/starter/MainVerticle.java)
-* an unit test (src/main/test/io/vertx/starter/MainVerticleTest.java)
-
-== Start to hack
-
-1. Delete the `.git` directory
-2. Open the `pom.xml` file and customize the `groupId`, `artifactId` and `version`. You can also change the `main.verticle` property to use your own package name and verticle class.
-3. Run `redeploy.sh` (or `redeploy.bat` on Windows) and the project recompiles while editing.
-
-NOTE: the `redeploy` script are also configurable
-
-== Building the project
-
-To build the project, just use:
-
+[source]
 ----
-mvn clean package
+mvnw.cmd clean compile vertx:run
 ----
 
-It generates a _fat-jar_ in the `target` directory.
+The command compiles the project and run it in redeploy mode. Open your browser to http://localhost:9000[http://localhost:9000]. You should be redirected into login page.
+
+Redeploy mode, help developer to compile immediately when there're a changes, and deploy it automatically, usually called `hot-reload`.
+
+Besides run in redeploy mode, you also can package into one `jar` file:
+
+[source]
+----
+./mvnw clean compile vertx:package
+----
+
+On Windows:
+
+[source]
+----
+mvnw.cmd clean compile vertx:package
+----
+
+And run it with `java -jar` command:
+
+[source]
+----
+java -jar target/*jar
+----
+
+== Heroku Live Test
+
+This project is automated deploy with heroku pipeline.
+
+Branch master https://caltic-wiki.herokuapp.com[caltic-wiki.herokuapp.com]
+
+Branch develop https://caltic-wiki-test.herokuapp.com[caltic-wiki-test.herokuapp.com]
+
+== TODO
+
+TODO List:
+
+* Modify `docker-compose.yml` to support running apps inside container.
+* Create automated seeding user and roles database.
