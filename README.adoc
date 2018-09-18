@@ -6,10 +6,12 @@ A wiki project based on Vert.x.
 
 Changelogs:
 
-* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.2.0[0.2.0]: Refactor using event bus communication
-* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.1.1[0.1.1]: Hotfix DB Pool
-* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.1.0[0.1.0]: Wiki Functionality
-* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.0.1[0.0.1]: Hello World
+* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.3.1[release-0.3.1]: Make proper documentation using README file
+* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.3.0[release-0.3.0]: Add user and role management
+* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.2.0[release-0.2.0]: Refactor using event bus communication
+* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.1.1[release-0.1.1]: Hotfix DB Pool
+* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.1.0[release-0.1.0]: Wiki Functionality
+* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.0.1[release-0.0.1]: Hello World
 
 == Prerequisites
 
@@ -52,7 +54,7 @@ caltic_wiki=# \q
 # exit
 ----
 
-Replace `QUERY_INSIDE_RESOURCE` with query in https://github.com/h3rucutu/caltic-vertx-wiki/blob/master/src/main/resources/sql/vertx_auth_jdbc.sql[vertx_auth_jdbc.sql].
+Replace `QUERY_INSIDE_RESOURCE` with query in https://github.com/h3rucutu/caltic-vertx-wiki/blob/master/src/main/resources/sql/vertx_auth_jdbc.sql[`vertx_auth_jdbc.sql`].
 
 `User Matrix`
 
@@ -114,9 +116,21 @@ Branch master https://caltic-wiki.herokuapp.com[caltic-wiki.herokuapp.com]
 
 Branch develop https://caltic-wiki-test.herokuapp.com[caltic-wiki-test.herokuapp.com]
 
+== What inside the Project?
+The technology used on this Project:
+
+* Vert.x stack (core, web, jdbc-auth, freemarker, unit).
+* txtmark
+* reactiverse (reactive-pg-client, vertx-maven-plugin)
+* logback-classic
+* junit
+
+== Git-Flow
+This project is maintained using https://github.com/nvie/gitflow[git-flow]. Please refer the website for manual instructions.
+
 == TODO
 
 TODO List:
 
-* Modify `docker-compose.yml` to support running apps inside container.
+* Modify https://github.com/h3rucutu/caltic-vertx-wiki/blob/master/docker-compose.yml[`docker-compose.yml`] to support running apps inside container.
 * Create automated seeding user and roles database.
