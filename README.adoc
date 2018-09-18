@@ -54,7 +54,7 @@ caltic_wiki=# \q
 # exit
 ----
 
-Replace `QUERY_INSIDE_RESOURCE` with query in https://github.com/h3rucutu/caltic-vertx-wiki/blob/master/src/main/resources/sql/vertx_auth_jdbc.sql[vertx_auth_jdbc.sql].
+Replace `QUERY_INSIDE_RESOURCE` with query in https://github.com/h3rucutu/caltic-vertx-wiki/blob/master/src/main/resources/sql/vertx_auth_jdbc.sql[`vertx_auth_jdbc.sql`].
 
 `User Matrix`
 
