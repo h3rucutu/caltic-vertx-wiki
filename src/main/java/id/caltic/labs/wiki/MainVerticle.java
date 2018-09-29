@@ -23,7 +23,7 @@ public class MainVerticle extends AbstractVerticle {
     dbVerticleDeployment.compose(id -> {
       Future<String> httpVerticleDeployment = Future.future();
       vertx.deployVerticle(
-          "HttpServerVerticle",
+          "id.caltic.labs.wiki.HttpServerVerticle",
           httpOptions, httpVerticleDeployment.completer());
 
       return httpVerticleDeployment;
