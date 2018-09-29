@@ -1,4 +1,4 @@
-package id.co.caltic.labs.wiki;
+package id.caltic.labs.wiki;
 
 import io.reactiverse.pgclient.*;
 import io.vertx.core.AbstractVerticle;

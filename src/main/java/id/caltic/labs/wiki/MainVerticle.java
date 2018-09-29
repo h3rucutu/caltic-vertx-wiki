@@ -1,4 +1,4 @@
-package id.co.caltic.labs.wiki;
+package id.caltic.labs.wiki;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
@@ -23,7 +23,7 @@ public class MainVerticle extends AbstractVerticle {
     dbVerticleDeployment.compose(id -> {
       Future<String> httpVerticleDeployment = Future.future();
       vertx.deployVerticle(
-          "id.co.caltic.labs.wiki.HttpServerVerticle",
+          "HttpServerVerticle",
           httpOptions, httpVerticleDeployment.completer());
 
       return httpVerticleDeployment;

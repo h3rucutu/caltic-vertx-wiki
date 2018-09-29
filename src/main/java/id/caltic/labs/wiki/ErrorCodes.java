@@ -1,4 +1,4 @@
-package id.co.caltic.labs.wiki;
+package id.caltic.labs.wiki;
 
 public enum ErrorCodes {
   NO_ACTION_SPECIFIED,
