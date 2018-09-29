@@ -1,4 +1,4 @@
-package id.caltic.labs.wiki;
+package id.caltic.labs.wiki.http;
 
 import com.github.rjeschke.txtmark.Processor;
 import io.vertx.core.AbstractVerticle;
