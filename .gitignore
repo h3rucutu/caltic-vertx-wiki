@@ -12,6 +12,8 @@
 build
 target
 .vertx
+.file-uploads
+/src/main/generated/
 
 ######################
 # Node
