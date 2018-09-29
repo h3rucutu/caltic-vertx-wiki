@@ -12,17 +12,13 @@ public class MainVerticle extends AbstractVerticle {
   public void start(Future<Void> startFuture) throws Exception {
     Future<String> dbVerticleDeployment = Future.future();
 
-    String dbinstance = System.getenv("VERTICLE_DATABASE_INSTANCE");
     String httpInstance = System.getenv("VERTICLE_HTTP_INSTANCE");
 
-    DeploymentOptions dbOptions = new DeploymentOptions()
-        .setInstances((dbinstance == null || dbinstance.isEmpty()) ? 1 : Integer.valueOf(dbinstance));
     DeploymentOptions httpOptions = new DeploymentOptions()
         .setInstances((httpInstance == null || httpInstance.isEmpty()) ? 1 : Integer.valueOf(httpInstance));
 
     vertx.deployVerticle(
-        "id.co.caltic.labs.wiki.DatabaseVerticle",
-        dbOptions, dbVerticleDeployment.completer());
+        new DatabaseVerticle(), dbVerticleDeployment.completer());
 
     dbVerticleDeployment.compose(id -> {
       Future<String> httpVerticleDeployment = Future.future();
