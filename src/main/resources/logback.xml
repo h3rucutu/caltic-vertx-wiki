@@ -6,10 +6,9 @@
   </appender>
 
   <logger name="com.mchange.v2" level="warn"/>
-  <logger name="io.reactiverse" level="warn"/>
   <logger name="io.netty" level="warn"/>
   <logger name="io.vertx" level="info"/>
-  <logger name="id.co.caltic.labs.wiki" level="debug"/>
+  <logger name="id.caltic.labs.wiki" level="debug"/>
 
   <root level="debug">
     <appender-ref ref="STDOUT"/>

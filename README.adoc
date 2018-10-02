@@ -2,10 +2,11 @@
 
 A wiki project based on Vert.x.
 
-== Changelogs
+== Changelog
 
-Changelogs:
+Changelog:
 
+* https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.4.0[release-0.4.0]: Refactor using Service Proxy
 * https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.3.1[release-0.3.1]: Make proper documentation using README file
 * https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.3.0[release-0.3.0]: Add user and role management
 * https://github.com/h3rucutu/caltic-vertx-wiki/tree/0.2.0[release-0.2.0]: Refactor using event bus communication
@@ -85,7 +86,7 @@ mvnw.cmd clean compile vertx:run
 
 The command compiles the project and run it in redeploy mode. Open your browser to http://localhost:9000[http://localhost:9000]. You should be redirected into login page.
 
-Redeploy mode, help developer to compile immediately when there're a changes, and deploy it automatically, usually called `hot-reload`.
+Redeploy mode help developer to compile immediately when there's a changes and deploy it automatically, usually called `hot-reload`.
 
 Besides run in redeploy mode, you also can package into one `jar` file:
 
@@ -126,7 +127,8 @@ The technology used on this Project:
 * junit
 
 == Git-Flow
-This project is maintained using https://github.com/nvie/gitflow[git-flow]. Please refer the website for manual instructions.
+
+This project is maintained using https://github.com/nvie/gitflow[git-flow]. Please refer `git-flow` website for the instructions.
 
 == TODO
 
@@ -134,3 +136,7 @@ TODO List:
 
 * Modify https://github.com/h3rucutu/caltic-vertx-wiki/blob/master/docker-compose.yml[`docker-compose.yml`] to support running apps inside container.
 * Create automated seeding user and roles database.
+
+== Caltic.id
+
+This project brought to you by https://caltic.id[caltic.id]

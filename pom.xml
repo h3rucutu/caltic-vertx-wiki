@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>id.co.caltic.labs.wiki</groupId>
+  <groupId>id.caltic.labs.wiki</groupId>
   <artifactId>caltic-vertx-wiki</artifactId>
-  <version>0.3.2-SNAPSHOT</version>
+  <version>0.4.0-SNAPSHOT</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -16,11 +16,10 @@
     <vertx.version>3.5.3</vertx.version>
     <vertx-maven-plugin.version>1.0.17</vertx-maven-plugin.version>
     <postgresql.version>9.4.1212</postgresql.version>
-    <reactive.pg.client.version>0.10.2</reactive.pg.client.version>
     <txtmark.version>0.13</txtmark.version>
     <logback.version>1.2.3</logback.version>
     <junit.version>4.12</junit.version>
-    <vertx.verticle>id.co.caltic.labs.wiki.MainVerticle</vertx.verticle>
+    <vertx.verticle>id.caltic.labs.wiki.MainVerticle</vertx.verticle>
   </properties>
 
   <dependencyManagement>
@@ -63,9 +62,8 @@
       <version>${postgresql.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.reactiverse</groupId>
-      <artifactId>reactive-pg-client</artifactId>
-      <version>${reactive.pg.client.version}</version>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-service-proxy</artifactId>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
