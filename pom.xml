@@ -6,7 +6,7 @@
 
   <groupId>id.caltic.labs.wiki</groupId>
   <artifactId>caltic-vertx-wiki</artifactId>
-  <version>0.4.0</version>
+  <version>0.4.1-SNAPSHOT</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
