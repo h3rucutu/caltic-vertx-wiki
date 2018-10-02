@@ -1,4 +1,4 @@
-package id.co.caltic.labs.wiki;
+package id.caltic.labs.wiki;
 
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
