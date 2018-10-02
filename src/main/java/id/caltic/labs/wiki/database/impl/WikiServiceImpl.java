@@ -29,7 +29,7 @@ public class WikiServiceImpl implements WikiService {
 
   private final JDBCClient jdbcClient;
 
-  WikiServiceImpl(JDBCClient jdbcClient, Handler<AsyncResult<WikiService>> resultHandler) {
+  public WikiServiceImpl(JDBCClient jdbcClient, Handler<AsyncResult<WikiService>> resultHandler) {
     this.jdbcClient = jdbcClient;
 
     jdbcClient.getConnection(ar -> {
