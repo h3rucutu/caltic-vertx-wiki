@@ -16,7 +16,6 @@
     <vertx.version>3.5.3</vertx.version>
     <vertx-maven-plugin.version>1.0.17</vertx-maven-plugin.version>
     <postgresql.version>9.4.1212</postgresql.version>
-    <reactive.pg.client.version>0.10.2</reactive.pg.client.version>
     <txtmark.version>0.13</txtmark.version>
     <logback.version>1.2.3</logback.version>
     <junit.version>4.12</junit.version>
@@ -61,11 +60,6 @@
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>${postgresql.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.reactiverse</groupId>
-      <artifactId>reactive-pg-client</artifactId>
-      <version>${reactive.pg.client.version}</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
