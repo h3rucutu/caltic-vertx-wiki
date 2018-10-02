@@ -120,9 +120,9 @@ Branch develop https://caltic-wiki-test.herokuapp.com[caltic-wiki-test.herokuapp
 == What inside the Project?
 The technology used on this Project:
 
-* Vert.x stack (core, web, jdbc-auth, freemarker, unit).
+* Vert.x stack (core, web, jdbc-client, jdbc-auth, freemarker, unit).
 * txtmark
-* reactiverse (reactive-pg-client, vertx-maven-plugin)
+* reactiverse (vertx-maven-plugin)
 * logback-classic
 * junit
 
