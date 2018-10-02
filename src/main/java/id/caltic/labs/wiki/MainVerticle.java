@@ -1,6 +1,6 @@
 package id.caltic.labs.wiki;
 
-import id.caltic.labs.wiki.database.DatabaseVerticle;
+import id.caltic.labs.wiki.database.WikiDatabaseVerticle;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
@@ -19,7 +19,7 @@ public class MainVerticle extends AbstractVerticle {
         .setInstances((httpInstance == null || httpInstance.isEmpty()) ? 1 : Integer.valueOf(httpInstance));
 
     vertx.deployVerticle(
-        new DatabaseVerticle(), dbVerticleDeployment.completer());
+        new WikiDatabaseVerticle(), dbVerticleDeployment.completer());
 
     dbVerticleDeployment.compose(id -> {
       Future<String> httpVerticleDeployment = Future.future();
