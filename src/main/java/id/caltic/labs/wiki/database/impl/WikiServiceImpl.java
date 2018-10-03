@@ -12,6 +12,7 @@ import io.vertx.ext.sql.SQLConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class WikiServiceImpl implements WikiService {
@@ -25,6 +26,7 @@ public class WikiServiceImpl implements WikiService {
   private static final String SQL_CREATE_PAGE = "INSERT INTO pages (name, content) VALUES (?, ?)";
   private static final String SQL_SAVE_PAGE = "UPDATE pages SET content = ? WHERE id = ?";
   private static final String SQL_ALL_PAGES = "SELECT name FROM pages";
+  private static final String SQL_ALL_DATA_PAGES = "SELECT id, name, content FROM pages";
   private static final String SQL_DELETE_PAGE = "DELETE FROM pages WHERE id = ?";
 
   private final JDBCClient jdbcClient;
@@ -55,12 +57,24 @@ public class WikiServiceImpl implements WikiService {
   public WikiService fetchAllPages(Handler<AsyncResult<JsonArray>> resultHandler) {
     jdbcClient.query(SQL_ALL_PAGES, res -> {
       if (res.succeeded()) {
-        JsonArray pages = new JsonArray(res.result()
-            .getResults().parallelStream()
+        JsonArray pages = new JsonArray(res.result().getResults().parallelStream()
             .map(json -> json.getString(0)).sorted()
             .collect(Collectors.toList()));
 
         resultHandler.handle(Future.succeededFuture(pages));
+      } else {
+        LOGGER.error("Database query error", res.cause());
+        resultHandler.handle(Future.failedFuture(res.cause()));
+      }
+    });
+    return this;
+  }
+
+  @Override
+  public WikiService fetchAllDataPages(Handler<AsyncResult<List<JsonObject>>> resultHandler) {
+    jdbcClient.query(SQL_ALL_DATA_PAGES, res -> {
+      if (res.succeeded()) {
+        resultHandler.handle(Future.succeededFuture(res.result().getRows()));
       } else {
         LOGGER.error("Database query error", res.cause());
         resultHandler.handle(Future.failedFuture(res.cause()));
