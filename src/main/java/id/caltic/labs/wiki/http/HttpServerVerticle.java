@@ -21,7 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class HttpServerVerticle extends AbstractVerticle {
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpServerVerticle.class);
@@ -88,6 +90,16 @@ public class HttpServerVerticle extends AbstractVerticle {
           .end();
     });
 
+    Router apiRouter = Router.router(vertx);
+    apiRouter.route().handler(BodyHandler.create());
+
+    apiRouter.get("/page").handler(this::apiIndex);
+    apiRouter.get("/page/:id").handler(this::apiGetPage);
+    apiRouter.post("/page").handler(this::apiCreatePage);
+    apiRouter.put("/page/:id").handler(this::apiUpdatePage);
+    apiRouter.delete("/page/:id").handler(this::apiDeletePage);
+    router.mountSubRouter("/api/v1", apiRouter);
+
     server.requestHandler(router::accept)
         .listen(port, ar -> {
           if (ar.succeeded()) {
@@ -98,6 +110,46 @@ public class HttpServerVerticle extends AbstractVerticle {
             startFuture.fail(ar.cause());
           }
         });
+  }
+
+  private void apiIndex(RoutingContext context) {
+    LOGGER.info("apiIndex");
+    wikiService.fetchAllDataPages(reply -> {
+      JsonObject response = new JsonObject();
+      if (reply.succeeded()) {
+        List<JsonObject> pages = reply.result().parallelStream()
+            .map(o -> new JsonObject()
+                .put("id", o.getInteger("id"))
+                .put("name", o.getString("name")))
+            .collect(Collectors.toList());
+
+        response.put("success", true).put("page", pages);
+        context.response().setStatusCode(200);
+        context.response().putHeader("Content-Type", "application/json");
+        context.response().end(response.encode());
+      } else {
+        response.put("success", false).put("error", reply.cause().getMessage());
+        context.response().setStatusCode(500);
+        context.response().putHeader("Content-Type", "application/json");
+        context.response().end(response.encode());
+      }
+    });
+  }
+
+  private void apiGetPage(RoutingContext context) {
+    // TODO: Add implementation
+  }
+
+  private void apiCreatePage(RoutingContext context) {
+    // TODO: Add implementation
+  }
+
+  private void apiUpdatePage(RoutingContext context) {
+    // TODO: Add implementation
+  }
+
+  private void apiDeletePage(RoutingContext context) {
+    // TODO: Add implementation
   }
 
   private void postLoginHander(RoutingContext context) {
